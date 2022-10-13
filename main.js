@@ -22,6 +22,8 @@ options = {
     isCapturingGameCanvasOnly: true,
     isReplayEnabled: true,
     captureCanvasScale: 2,
+	isPlayingBgm:true,
+	seed:605
 };
 
 /**
@@ -82,6 +84,18 @@ let directionEnemies;
  */
 let golds;
 
+/**
+ * @typedef {{
+ * pos: Vector,
+ * }} HighValueGold
+ */
+   
+/**
+ * @type { HighValueGold [] }
+ */
+ let highValueGolds;
+   
+
 function update() {
 	if (!ticks) {
 		player = {
@@ -91,6 +105,7 @@ function update() {
 		golds = [];
 		enemies = [];
 		directionEnemies = [];
+		highValueGolds = [];
 
 	}
 
@@ -102,7 +117,7 @@ function update() {
 	if (enemies.length === 0) {
         currentEnemySpeed =
             rnd(G.ENEMIESBASESPEED, G.ENEMIESUPSPEED) * difficulty;
-        for (let i = 0; i < 20; i++) {
+        for (let i = 0; i < 9; i++) {
             const posX = rnd(0, G.WIDTH);
             const posY = -rnd(i * G.HEIGHT * 0.1);
             enemies.push({ pos: vec(posX, posY) })
@@ -127,6 +142,13 @@ function update() {
         	golds.push({ pos: vec(posX, posY) })
 		}
 
+    }
+
+	if (highValueGolds.length === 0) {
+
+        const posX = rnd(0, G.WIDTH);
+        const posY = rnd(0, G.HEIGHT);
+        highValueGolds.push({ pos: vec(posX, posY) })
     }
 
 	remove(enemies, (e) => {
@@ -174,6 +196,21 @@ function update() {
         }
 
         return (isCollidingWithGold);
+    });
+
+	remove(highValueGolds, (vg) => {
+        color("cyan");
+        box(vg.pos, 5);
+
+        const isCollidingWithHighValueGold = box(vg.pos, 5).isColliding.rect.green;
+        if(isCollidingWithHighValueGold){
+            color("cyan");
+            particle (vg.pos);
+            addScore(5, vg.pos);
+            play("lucky");
+        }
+
+        return (isCollidingWithHighValueGold);
     });
 
 
